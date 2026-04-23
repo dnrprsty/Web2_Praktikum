@@ -3,243 +3,649 @@
 ## Kelas    : I241A
 ## NIM      : 312410008
 
-Project ini mengerjakan alur praktikum Web 2 berbasis CodeIgniter 4 dengan penyesuaian agar berjalan penuh memakai `docker compose`.
+Website portal artikel sederhana berbasis **CodeIgniter 4** dengan fitur CRUD lengkap, sistem autentikasi admin, relasi database, pencarian, filter, dan pagination. Proyek ini dikonfigurasi sepenuhnya dengan **Docker Compose** untuk kemudahan deployment.
 
-Fitur yang sudah dibuat:
+## 📋 Daftar Isi
 
-- Layout website sederhana dan rapi seperti gaya modul.
-- Halaman publik: `Home`, `Artikel`, `About`, `Contact`.
-- Sidebar dinamis dengan `View Cell` untuk artikel terbaru.
-- Login admin + auth filter.
-- CRUD artikel.
-- CRUD kategori.
-- Relasi tabel `artikel` dan `kategori`.
-- Query Builder untuk join artikel dengan kategori.
-- Pencarian artikel.
-- Filter artikel berdasarkan kategori.
-- Pagination di halaman artikel admin dan halaman artikel publik.
-- Seeder awal supaya project langsung ada isi.
+- [Fitur Utama](#-fitur-utama)
+- [Screenshots](#-screenshots)
+- [Struktur Proyek](#-struktur-proyek)
+- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
+- [Instalasi & Setup](#-instalasi--setup)
+- [Menjalankan Aplikasi](#-menjalankan-aplikasi)
+- [Akun Default](#-akun-default)
+- [Dokumentasi Fitur](#-dokumentasi-fitur)
+- [Endpoint API](#-endpoint-api)
+- [Struktur Database](#-struktur-database)
 
-## Jalankan Project
+---
 
-Karena di mesin ini port `8080`, `8081`, dan `3306` sudah dipakai project lain, project ini saya set ke port berikut:
+## ✨ Fitur Utama
 
-- Aplikasi: `http://localhost:8082`
-- MySQL: `localhost:3307`
+### Publik (Pengunjung)
+- **Halaman Beranda** - Menampilkan 3 artikel terbaru yang dipublikasikan
+- **Halaman Artikel** - Daftar semua artikel dengan pagination (6 artikel per halaman)
+- **Detail Artikel** - Membaca artikel lengkap dengan nama kategori
+- **Halaman About** - Informasi tentang website
+- **Halaman Contact** - Formulir kontak
+- **Sidebar Dinamis** - Menampilkan artikel terbaru menggunakan View Cell
+- **Layout Responsif** - Header, navigasi, konten utama, sidebar, dan footer yang tertata rapi
 
-Perintah menjalankan:
+### Admin (Terotentikasi)
+- **Autentikasi Login** - System login dengan email dan password terenkripsi
+- **Manajemen Artikel**
+  - Create (tambah) artikel baru
+  - Read (lihat) daftar semua artikel dengan pagination (10 per halaman)
+  - Update (edit) artikel yang sudah dibuat
+  - Delete (hapus) artikel
+  - Pilih kategori artikel
+  - Atur status `Published` (1) atau `Draft` (0)
+  - Ganti sumber gambar artikel
+  - Validasi input lengkap (judul min 3 karakter, isi min 20 karakter)
+
+- **Pencarian & Filter Artikel**
+  - Pencarian berdasarkan judul atau isi artikel
+  - Filter berdasarkan kategori
+  - Kombinasi pencarian dan filter
+
+- **Manajemen Kategori**
+  - Create (tambah) kategori baru
+  - Read (lihat) daftar kategori dengan jumlah artikel
+  - Update (edit) kategori
+  - Delete (hapus) kategori dengan validasi (tidak bisa dihapus jika masih dipakai artikel)
+  - Auto-generate slug dari nama kategori
+
+- **Proteksi Akses** - Auth filter untuk melindungi semua endpoint admin
+
+---
+
+## 📸 Screenshots
+
+### Halaman Publik
+
+#### 1. Beranda
+Halaman depan website menampilkan artikel terbaru dan sidebar dinamis:
+
+![Halaman Beranda](ss/home.png)
+
+#### 2. Daftar Artikel Publik
+Tampilan list semua artikel dengan pagination:
+
+![Daftar Artikel](ss/artikel.png)
+
+#### 3. Detail Artikel
+Membaca artikel lengkap dengan kategori dan navigasi:
+
+![Detail Artikel](ss/detail.png)
+
+#### 4. Halaman About
+Informasi tentang website:
+
+![Halaman About](ss/about.png)
+
+#### 5. Halaman Contact
+Formulir kontak dengan informasi:
+
+![Halaman Contact](ss/kontak.png)
+
+---
+
+### Halaman Admin
+
+#### 6. Login Admin
+Form login dengan email dan password:
+
+![Login Admin](ss/login.png)
+
+#### 7. Dashboard - Daftar Artikel
+Interface admin untuk mengelola semua artikel dengan pencarian, filter, dan pagination:
+
+![Dashboard Artikel](ss/admin.png)
+
+#### 8. Pencarian & Filter Artikel
+Fitur pencarian by judul/isi dan filter by kategori:
+
+![Pencarian & Filter](ss/cari.png)
+
+#### 9. Tambah Artikel
+Form untuk membuat artikel baru:
+
+![Tambah Artikel](ss/tambah.png)
+
+#### 10. Edit Artikel
+Form untuk mengubah artikel yang sudah dibuat:
+
+![Edit Artikel](ss/edit.png)
+
+#### 11. Daftar Kategori
+Interface mengelola kategori dengan jumlah artikel:
+
+![Daftar Kategori](ss/daftar.png)
+
+#### 12. Tambah/Edit Kategori
+Form kategori dengan auto-generate slug:
+
+![Tambah Kategori](ss/tambahkat.png)
+
+---
+
+## 📁 Struktur Proyek
+
+```
+web2/
+├── app/                              # Aplikasi CodeIgniter 4
+│   ├── app/
+│   │   ├── Config/                   # Konfigurasi aplikasi
+│   │   │   ├── Routes.php           # Definisi routing
+│   │   │   ├── App.php              # Konfigurasi umum
+│   │   │   ├── Database.php         # Konfigurasi database
+│   │   │   ├── Filters.php          # Filter middleware
+│   │   │   └── ... (config lainnya)
+│   │   ├── Controllers/              # Controller handlers
+│   │   │   ├── Home.php             # Halaman beranda
+│   │   │   ├── Artikel.php          # Kelola artikel (publik & admin)
+│   │   │   ├── Kategori.php         # Kelola kategori
+│   │   │   ├── Page.php             # Halaman statis (about, contact)
+│   │   │   ├── User.php             # Login & logout
+│   │   │   └── BaseController.php   # Base controller dengan helper method
+│   │   ├── Models/                   # Database models
+│   │   │   ├── ArtikelModel.php     # Model untuk tabel artikel
+│   │   │   ├── KategoriModel.php    # Model untuk tabel kategori
+│   │   │   └── UserModel.php        # Model untuk tabel user
+│   │   ├── Views/                    # Template views
+│   │   │   ├── layout/              # Layout utama
+│   │   │   ├── pages/               # Halaman publik (home, about, contact)
+│   │   │   ├── artikel/             # Views artikel (index, detail, admin, form)
+│   │   │   ├── kategori/            # Views kategori (index, form)
+│   │   │   ├── user/                # Views user (login)
+│   │   │   ├── components/          # Komponen reusable
+│   │   │   └── errors/              # Halaman error
+│   │   ├── Database/
+│   │   │   ├── Migrations/          # File migrasi database
+│   │   │   │   ├── 2026-04-20-000001_CreateKategoriTable.php
+│   │   │   │   ├── 2026-04-20-000002_CreateArtikelTable.php
+│   │   │   │   └── 2026-04-20-000003_CreateUserTable.php
+│   │   │   └── Seeds/               # Data seeder
+│   │   ├── Filters/                  # Middleware filter
+│   │   │   └── Auth.php             # Filter autentikasi
+│   │   ├── Cells/                    # View Cell components
+│   │   │   └── ArtikelTerkini.php   # Cell untuk artikel terbaru
+│   │   ├── Helpers/                  # Helper functions
+│   │   ├── Libraries/                # Library tambahan
+│   │   └── Common.php               # Helper function global
+│   ├── public/                       # Public folder (document root)
+│   │   ├── index.php                # Entry point aplikasi
+│   │   ├── style.css                # Stylesheet publik
+│   │   └── robots.txt
+│   ├── vendor/                       # Composer dependencies
+│   ├── writable/                     # Folder writable (cache, logs, session, uploads)
+│   ├── tests/                        # Test files
+│   ├── composer.json                # Composer configuration
+│   ├── .env                         # Environment variables
+│   └── ... (file konfigurasi lainnya)
+├── docker/                          # Docker configuration
+│   ├── vhost.conf                   # Apache virtual host config
+│   └── start-ci.sh                  # Startup script
+├── Dockerfile                       # Docker image configuration
+├── docker-compose.yml               # Docker Compose configuration
+├── ss/                              # Folder screenshots
+│   ├── 01-beranda.png
+│   ├── 02-daftar-artikel.png
+│   └── ... (screenshot lainnya)
+└── README.md                        # File dokumentasi ini
+```
+
+---
+
+## 🛠 Teknologi yang Digunakan
+
+| Komponen | Teknologi | Versi |
+|----------|-----------|-------|
+| Framework | CodeIgniter | 4 |
+| Backend | PHP | 8.x |
+| Database | MySQL | 8.0 |
+| Web Server | Apache | Built-in |
+| Containerization | Docker & Docker Compose | Latest |
+| Package Manager | Composer | Latest |
+| Testing | PHPUnit | Latest |
+
+---
+
+## 🚀 Instalasi & Setup
+
+### Prasyarat
+- Docker dan Docker Compose terinstall
+- Terminal/Command Line
+- Git (untuk clone repository)
+
+### Langkah-langkah
+
+1. **Clone atau Download Repository**
+   ```bash
+   git clone <repository-url>
+   cd web2
+   ```
+
+2. **Build dan Jalankan Container**
+   ```bash
+   docker compose up --build -d
+   ```
+
+3. **Tunggu Proses Initialization**
+   
+   Saat container `app` pertama kali jalan, startup script akan otomatis melakukan:
+   - Menunggu database siap
+   - Menjalankan `composer install`
+   - Menjalankan migrations (membuat tabel)
+   - Menjalankan seeder (mengisi data awal)
+
+   Proses ini membutuhkan 1-2 menit. Anda bisa monitor log dengan:
+   ```bash
+   docker compose logs -f app
+   ```
+
+4. **Akses Aplikasi**
+   - URL: `http://localhost:8082`
+   - Database: `localhost:3307`
+
+5. **Untuk Menghentikan**
+   ```bash
+   docker compose down
+   ```
+
+---
+
+## 🌐 Menjalankan Aplikasi
+
+### Konfigurasi Port
+
+Port default diatur karena port `8080`, `8081`, dan `3306` sudah dipakai:
+
+| Service | Port |
+|---------|------|
+| Aplikasi Web | 8082 |
+| MySQL Database | 3307 |
+
+Untuk mengubah port, edit `docker-compose.yml`:
+```yaml
+services:
+  app:
+    ports:
+      - "PORT_BARU:80"  # Ubah PORT_BARU sesuai keinginan
+```
+
+### Development Workflow
 
 ```bash
+# Lihat status container
+docker compose ps
+
+# Lihat log aplikasi real-time
+docker compose logs -f app
+
+# Akses terminal dalam container
+docker exec -it web2_ci4_app bash
+
+# Jalankan command di container
+docker exec web2_ci4_app php spark migrate
+
+# Rebuild container (jika ada perubahan Dockerfile)
 docker compose up --build -d
 ```
 
-Untuk menghentikan:
+---
+
+## 👤 Akun Default
+
+Akun admin sudah dibuat otomatis melalui seeder:
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@email.com` |
+| Password | `admin123` |
+
+**URL Login:** `http://localhost:8082/user/login`
+
+### Tips Keamanan
+- **Ubah password** setelah login pertama kali
+- Gunakan password yang kuat untuk production
+- Jangan hardcode password di kode, gunakan environment variable
+
+---
+
+## 📖 Dokumentasi Fitur
+
+### 1. **Halaman Publik**
+
+#### Beranda (`/`)
+- Menampilkan header, navigasi, dan 3 artikel terbaru
+- Sidebar menampilkan "Artikel Terkini" (dinamis dengan View Cell)
+- Layout: header → navigasi → featured articles → sidebar → footer
+
+#### Daftar Artikel (`/artikel`)
+- Menampilkan semua artikel yang `Published` (status = 1)
+- Pagination: 6 artikel per halaman
+- Query: Artikel di-join dengan kategori untuk menampilkan nama kategori
+- Sorting: Berdasarkan `created_at` DESC (terbaru dahulu)
+
+#### Detail Artikel (`/artikel/{slug}`)
+- Menampilkan artikel lengkap dengan isi, gambar, kategori
+- Hanya menampilkan artikel yang `Published`
+- Akses via URL slug (unik dan SEO-friendly)
+- Jika artikel tidak ditemukan: tampilkan 404
+
+#### Halaman About (`/about`)
+- Konten statis dari SiteContent config
+
+#### Halaman Contact (`/contact`)
+- Konten statis dari SiteContent config
+
+---
+
+### 2. **Autentikasi & Admin**
+
+#### Login (`/user/login`)
+- Form email + password
+- Password di-hash dengan `password_verify()` (PHP native)
+- Session disimpan: `user_id`, `user_name`, `user_email`, `logged_in`
+- Flash message untuk error
+- Redirect ke `/admin/artikel` jika login berhasil
+
+#### Logout (`/user/logout`)
+- Destroy session
+- Redirect ke halaman login
+
+#### Auth Filter
+- Filter `auth` melindungi semua route di `/admin` group
+- Jika user belum login: redirect ke `/user/login`
+
+---
+
+### 3. **Manajemen Artikel (Admin)**
+
+#### Daftar Artikel Admin (`/admin/artikel`)
+- Pagination: 10 artikel per halaman
+- Tabel: ID | Judul | Kategori | Status | Aksi (edit, delete)
+- **Pencarian:** Input `q` (query) untuk cari di judul atau isi
+- **Filter:** Dropdown `kategori_id` untuk filter by kategori
+- Query Builder: `like` untuk pencarian, `where` untuk filter
+- Sorting: `created_at` DESC
+
+#### Tambah Artikel (`/admin/artikel/add`)
+- Form POST
+- Validasi:
+  - Judul: required, min 3 karakter
+  - Isi: required, min 20 karakter
+  - Kategori: required, integer
+  - Status: required, 0 atau 1
+  - Gambar: optional, max 255 karakter
+- Auto-generate slug dari judul
+- Input gambar: path/nama file atau placeholder.svg
+- Submit: insert ke tabel `artikel`
+- Success: flash message + redirect ke daftar artikel
+
+#### Edit Artikel (`/admin/artikel/edit/{id}`)
+- Form GET (tampil form) dan POST (proses update)
+- Validasi sama seperti tambah artikel
+- Update slug (bisa berubah jika judul berubah)
+- Jika artikel tidak ditemukan: 404
+- Success: flash message + redirect ke daftar artikel
+
+#### Hapus Artikel (`/admin/artikel/delete/{id}`)
+- Delete dari tabel `artikel` by ID
+- Redirect ke daftar artikel dengan flash message
+- Tidak ada konfirmasi, langsung hapus
+
+---
+
+### 4. **Manajemen Kategori (Admin)**
+
+#### Daftar Kategori (`/admin/kategori`)
+- Tampilkan semua kategori dengan jumlah artikel
+- Tabel: ID | Nama | Slug | Jumlah Artikel | Aksi (edit, delete)
+
+#### Tambah Kategori (`/admin/kategori/add`)
+- Form POST
+- Validasi:
+  - Nama kategori: required, min 3 karakter
+  - Slug kategori: optional
+- Jika slug kosong: auto-generate dari nama
+- Insert ke tabel `kategori`
+- Success: flash message + redirect
+
+#### Edit Kategori (`/admin/kategori/edit/{id}`)
+- Form GET dan POST
+- Validasi sama seperti tambah
+- Update slug jika ada perubahan
+- Jika kategori tidak ditemukan: 404
+
+#### Hapus Kategori (`/admin/kategori/delete/{id}`)
+- Cek apakah kategori masih dipakai artikel
+- Jika dipakai: tampilkan error message (tidak bisa dihapus)
+- Jika tidak: delete dari tabel `kategori`
+
+---
+
+## 🔌 Endpoint API
+
+### Publik Routes
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET | `/` | Home::index | Halaman beranda |
+| GET | `/about` | Page::about | Halaman about |
+| GET | `/contact` | Page::contact | Halaman contact |
+| GET | `/artikel` | Artikel::index | Daftar artikel publik |
+| GET | `/artikel/{slug}` | Artikel::view | Detail artikel |
+
+### User Routes
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET/POST | `/user/login` | User::login | Login form & proses |
+| GET | `/user/logout` | User::logout | Logout |
+
+### Admin Routes (Protected by Auth Filter)
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET | `/admin/artikel` | Artikel::admin_index | Daftar artikel (dengan pencarian & filter) |
+| GET/POST | `/admin/artikel/add` | Artikel::add | Form & proses tambah artikel |
+| GET/POST | `/admin/artikel/edit/{id}` | Artikel::edit | Form & proses edit artikel |
+| GET | `/admin/artikel/delete/{id}` | Artikel::delete | Hapus artikel |
+| GET | `/admin/kategori` | Kategori::index | Daftar kategori |
+| GET/POST | `/admin/kategori/add` | Kategori::add | Form & proses tambah kategori |
+| GET/POST | `/admin/kategori/edit/{id}` | Kategori::edit | Form & proses edit kategori |
+| GET | `/admin/kategori/delete/{id}` | Kategori::delete | Hapus kategori |
+
+---
+
+## 🗄 Struktur Database
+
+### Tabel: `kategori`
+
+```sql
+CREATE TABLE kategori (
+  id_kategori INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nama_kategori VARCHAR(100) NOT NULL,
+  slug_kategori VARCHAR(100) UNIQUE NOT NULL
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id_kategori` | INT UNSIGNED | Primary key, auto increment |
+| `nama_kategori` | VARCHAR(100) | Nama kategori (unik per kategori) |
+| `slug_kategori` | VARCHAR(100) | Slug unik untuk URL |
+
+---
+
+### Tabel: `artikel`
+
+```sql
+CREATE TABLE artikel (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  judul VARCHAR(200) NOT NULL,
+  isi TEXT NOT NULL,
+  gambar VARCHAR(255) NULL,
+  status TINYINT(1) DEFAULT 1,
+  slug VARCHAR(200) UNIQUE NOT NULL,
+  id_kategori INT UNSIGNED,
+  created_at DATETIME NULL,
+  updated_at DATETIME NULL,
+  FOREIGN KEY (id_kategori) REFERENCES kategori(id_kategori) 
+    ON DELETE RESTRICT ON UPDATE CASCADE
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id` | INT UNSIGNED | Primary key, auto increment |
+| `judul` | VARCHAR(200) | Judul artikel |
+| `isi` | TEXT | Isi artikel |
+| `gambar` | VARCHAR(255) | Path/nama file gambar |
+| `status` | TINYINT(1) | 1=Published, 0=Draft |
+| `slug` | VARCHAR(200) | Slug unik untuk URL |
+| `id_kategori` | INT UNSIGNED | FK ke tabel kategori |
+| `created_at` | DATETIME | Waktu dibuat (auto) |
+| `updated_at` | DATETIME | Waktu diupdate (auto) |
+
+**Relasi:** One-to-Many (1 kategori → banyak artikel)
+
+---
+
+### Tabel: `users`
+
+```sql
+CREATE TABLE users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(120) NOT NULL,
+  useremail VARCHAR(120) UNIQUE NOT NULL,
+  userpassword VARCHAR(255) NOT NULL
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id` | INT UNSIGNED | Primary key, auto increment |
+| `username` | VARCHAR(120) | Nama user |
+| `useremail` | VARCHAR(120) | Email user (unik) |
+| `userpassword` | VARCHAR(255) | Password (terenkripsi hash) |
+
+---
+
+## 📊 Query Builder & Database Queries
+
+### ArtikelModel::withKategori()
+Join artikel dengan kategori untuk menampilkan nama kategori:
+
+```php
+$artikel = $model
+    ->withKategori()  // JOIN dengan kategori
+    ->where('artikel.status', 1)  // Hanya artikel published
+    ->orderBy('artikel.created_at', 'DESC')  // Terbaru dulu
+    ->paginate(6);
+```
+
+### Pencarian Artikel
+Cari di judul atau isi dengan LIKE:
+
+```php
+$model->groupStart()
+    ->like('artikel.judul', $q)
+    ->orLike('artikel.isi', $q)
+    ->groupEnd();
+```
+
+### Filter Kategori
+Filter artikel berdasarkan kategori:
+
+```php
+if ($kategoriId !== '') {
+    $model->where('artikel.id_kategori', (int) $kategoriId);
+}
+```
+
+---
+
+## 🔧 Konfigurasi Penting
+
+### `.env` (Environment Variables)
+```
+CI_ENVIRONMENT = development  # atau production
+
+DB_HOST = db
+DB_PORT = 3306
+DB_DATABASE = lab_ci4
+DB_USERNAME = ci4user
+DB_PASSWORD = ci4pass
+
+TZ = Asia/Jakarta
+```
+
+### `app/Config/Routes.php`
+Definisi routing publik, user, dan admin dengan auth filter.
+
+### `app/Config/Filters.php`
+Register filter `auth` untuk proteksi routes admin.
+
+### `app/Filters/Auth.php`
+Middleware untuk check session login sebelum akses admin routes.
+
+---
+
+## 💡 Tips Pengembangan
+
+### Menambah Fitur Baru
+
+1. **Buat Migration** (jika ada perubahan database):
+   ```bash
+   docker exec web2_ci4_app php spark make:migration CreateTableName
+   ```
+
+2. **Buat Model**:
+   ```bash
+   docker exec web2_ci4_app php spark make:model ModelName
+   ```
+
+3. **Buat Controller**:
+   ```bash
+   docker exec web2_ci4_app php spark make:controller ControllerName
+   ```
+
+4. **Buat View**:
+   Buat file di `app/app/Views/folder/nama_view.php`
+
+### Debugging
 
 ```bash
-docker compose down
+# Lihat error aplikasi
+docker compose logs app
+
+# Akses shell container
+docker exec -it web2_ci4_app bash
+
+# Jalankan query langsung ke MySQL
+docker exec -it web2_ci4_db mysql -uroot -p lab_ci4
 ```
 
-Saat container `app` pertama kali jalan, script startup akan otomatis:
+---
 
-1. menunggu database siap,
-2. menjalankan `composer install`,
-3. menjalankan migration,
-4. menjalankan seeder data awal.
+## 📝 Catatan
 
-## Akun Admin Default
+- Seeder otomatis create akun admin: `admin@email.com` / `admin123`
+- Slug artikel & kategori di-generate otomatis dari nama/judul
+- Password di-hash menggunakan PHP built-in `password_hash()`
+- Session disimpan di `writable/session/`
+- Log ada di `writable/logs/`
+- Upload/gambar bisa disimpan di `writable/uploads/`
 
-- Email: `admin@email.com`
-- Password: `admin123`
+---
 
-Login admin ada di:
+## 📄 Lisensi
 
-```text
-http://localhost:8082/user/login
-```
+Project ini adalah hasil praktikum dan bebas digunakan sesuai kebutuhan.
 
-## Fitur Sesuai Modul
+---
 
-### 1. Layout dan halaman publik
-
-Halaman publik memakai layout utama dengan:
-
-- header,
-- navigasi,
-- area konten utama,
-- sidebar,
-- footer.
-
-Sidebar juga menampilkan `Artikel Terkini` lewat `View Cell`.
-
-### 2. CRUD artikel
-
-Admin bisa:
-
-- menambah artikel,
-- mengubah artikel,
-- menghapus artikel,
-- memilih kategori artikel,
-- mengatur status `Published` atau `Draft`,
-- mengganti sumber gambar artikel.
-
-### 3. Relasi tabel dan Query Builder
-
-Relasi database:
-
-- satu kategori bisa punya banyak artikel,
-- artikel menyimpan `id_kategori`,
-- data admin dan data publik mengambil nama kategori lewat `join`.
-
-### 4. Pencarian, filter, dan pagination
-
-Di halaman admin artikel tersedia:
-
-- input pencarian judul/isi,
-- dropdown filter kategori,
-- pagination.
-
-## Struktur Penting
-
-File yang paling sering dipakai:
-
-- `docker-compose.yml`  
-  Konfigurasi container aplikasi dan database.
-
-- `Dockerfile`  
-  Image PHP + Apache + ekstensi yang dibutuhkan CodeIgniter.
-
-- [`app/.env`](app/.env)  
-  Konfigurasi environment aplikasi.
-
-- [`app/app/Config/SiteContent.php`](app/app/Config/SiteContent.php)  
-  Tempat tercepat untuk ganti isi statis website.
-
-- [`app/app/Config/Routes.php`](app/app/Config/Routes.php)  
-  Routing halaman publik dan admin.
-
-- [`app/app/Controllers/Artikel.php`](app/app/Controllers/Artikel.php)  
-  Logika artikel publik dan admin.
-
-- [`app/app/Controllers/Kategori.php`](app/app/Controllers/Kategori.php)  
-  Logika kategori admin.
-
-- [`app/app/Controllers/User.php`](app/app/Controllers/User.php)  
-  Login dan logout admin.
-
-- [`app/app/Models/ArtikelModel.php`](app/app/Models/ArtikelModel.php)  
-  Model artikel + query relasi kategori.
-
-- [`app/app/Models/KategoriModel.php`](app/app/Models/KategoriModel.php)  
-  Model kategori.
-
-- [`app/app/Database/Migrations`](app/app/Database/Migrations)  
-  Struktur tabel database.
-
-- [`app/app/Database/Seeds`](app/app/Database/Seeds)  
-  Data awal artikel, kategori, dan user admin.
-
-- [`app/public/style.css`](app/public/style.css)  
-  Semua styling tampilan.
-
-## Bagian yang Mudah Dikustom
-
-### 1. Judul website, isi home, about, contact, widget
-
-Ubah file:
-
-- [`app/app/Config/SiteContent.php`](app/app/Config/SiteContent.php)
-
-Yang bisa diubah di situ:
-
-- nama website,
-- tagline,
-- footer,
-- isi halaman home,
-- isi halaman about,
-- isi halaman contact,
-- link sidebar,
-- teks widget sidebar.
-
-### 2. Artikel dan kategori awal
-
-Ubah file seeder:
-
-- [`app/app/Database/Seeds/KategoriSeeder.php`](app/app/Database/Seeds/KategoriSeeder.php)
-- [`app/app/Database/Seeds/ArtikelSeeder.php`](app/app/Database/Seeds/ArtikelSeeder.php)
-
-Kalau mau apply ulang:
-
-```bash
-docker compose exec app php spark db:seed InitialSeeder
-```
-
-### 3. Akun admin default
-
-Ubah file:
-
-- [`app/app/Database/Seeds/UserSeeder.php`](app/app/Database/Seeds/UserSeeder.php)
-
-Lalu jalankan ulang:
-
-```bash
-docker compose exec app php spark db:seed UserSeeder
-```
-
-### 4. Tampilan website
-
-Ubah file:
-
-- [`app/public/style.css`](app/public/style.css)
-
-Yang bisa kamu ubah cepat:
-
-- warna,
-- ukuran container,
-- tombol,
-- tabel admin,
-- layout sidebar,
-- kartu artikel.
-
-### 5. Port Docker
-
-Kalau kamu ingin ganti port:
-
-- buka `docker-compose.yml`,
-- ubah mapping port service `app` dan `db`,
-- sesuaikan juga `app/.env` pada `app.baseURL`.
-
-## Perintah Berguna
-
-Masuk ke container aplikasi:
-
-```bash
-docker compose exec app bash
-```
-
-Cek route:
-
-```bash
-docker compose exec app php spark routes
-```
-
-Jalankan migration manual:
-
-```bash
-docker compose exec app php spark migrate
-```
-
-## Catatan
-
-- Artikel dengan status `Draft` tidak tampil di halaman publik.
-- Gambar artikel bisa diisi:
-  - nama file/path dari folder `public`, contoh `placeholder.svg`
-  - atau URL gambar eksternal.
-- Jika ingin data baru dari nol, jalankan:
-
-```bash
-docker compose down -v
-docker compose up --build -d
-```
-
-# Screenshot 
-
+## 👨‍💻 Dibuat dengan ❤️ menggunakan CodeIgniter 4
