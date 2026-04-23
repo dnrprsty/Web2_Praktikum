@@ -1,4 +1,7 @@
 # Praktikum Web 2 - CodeIgniter 4 dengan Docker Compose
+## Nama     : Danur Wenda Prasetiyo
+## Kelas    : I241A
+## NIM      : 312410008
 
 Project ini mengerjakan alur praktikum Web 2 berbasis CodeIgniter 4 dengan penyesuaian agar berjalan penuh memakai `docker compose`.
 
@@ -237,3 +240,6 @@ docker compose exec app php spark migrate
 docker compose down -v
 docker compose up --build -d
 ```
+
+# Screenshot 
+
