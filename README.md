@@ -647,5 +647,3 @@ docker exec -it web2_ci4_db mysql -uroot -p lab_ci4
 Project ini adalah hasil praktikum dan bebas digunakan sesuai kebutuhan.
 
 ---
-
-## 👨‍💻 Dibuat dengan ❤️ menggunakan CodeIgniter 4
